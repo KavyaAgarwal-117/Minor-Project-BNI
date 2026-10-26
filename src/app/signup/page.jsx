@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import * as Yup from "yup";
 import { DotSpinner } from "ldrs/react";
 import "ldrs/react/DotSpinner.css";
+import { useRouter } from "next/navigation";
 
 const SignupSchema = Yup.object().shape({
   name: Yup.string()
@@ -25,7 +26,9 @@ const SignupSchema = Yup.object().shape({
     .oneOf([null, Yup.ref("password")], "Password must match"),
 });
 
-const signup = () => {
+const Signup = () => {
+  const router = useRouter();
+
   const signupForm = useFormik({
     initialValues: {
       name: "",
@@ -33,17 +36,14 @@ const signup = () => {
       password: "",
       confirmPassword: "",
     },
-    // onSubmit: (values) => {
-    //   console.log(values);
-
-    // },
     onSubmit: (values, { resetForm, setSubmitting }) => {
       console.log(values);
       axios
-        .post("http://localhost:5500/user/add", values)
+        .post("http://localhost:5000/user/add", values)
         .then((result) => {
           resetForm();
           toast.success("User registered succesfully");
+          router.push("/login");
         })
         .catch((err) => {
           console.log(err);
@@ -316,4 +316,4 @@ const signup = () => {
   );
 };
 
-export default signup;
+export default Signup;

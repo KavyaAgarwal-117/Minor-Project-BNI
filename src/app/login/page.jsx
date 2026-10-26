@@ -1,6 +1,9 @@
 "use client";
+import axios from "axios";
 import { useFormik } from "formik";
+import { useRouter } from "next/navigation";
 import React from "react";
+import toast from "react-hot-toast";
 import * as Yup from "yup";
 
 const LoginSchema = Yup.object().shape({
@@ -15,13 +18,31 @@ const LoginSchema = Yup.object().shape({
 });
 
 const login = () => {
+    
+    const router = useRouter();
+
   const loginForm = useFormik({
     initialValues: {
       email: "",
       password: "",
     },
-    onSubmit: (values) => {
+    onSubmit: (values, { resetForm, setSubmitting }) => {
       console.log(values);
+
+      axios
+        .post("http://localhost:5000/user/authenticate", values)
+        .then((result) => {
+          // Persist JWT token so protected pages (e.g. add-circle) can use it
+          localStorage.setItem("token", result.data.token);
+          resetForm();
+          toast.success("Login Success");
+          router.push("/browse-circle");
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error("Something went wrong");
+          setSubmitting(false);
+        });
     },
     validationSchema: LoginSchema,
   });
